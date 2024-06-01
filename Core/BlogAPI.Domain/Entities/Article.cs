@@ -11,6 +11,8 @@ namespace BlogAPI.Domain.Entities
     {
         public string Title { get; set; }
         public string Content { get; set; }
+        public Guid? CategoryId { get; set; }
         public Category Category { get; set; }
+        
     }
 }

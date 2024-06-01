@@ -1,5 +1,7 @@
 ﻿using BlogAPI.Domain.Entities;
+using BlogAPI.Domain.Entities.Common;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,6 +21,20 @@ namespace BlogAPI.Persistance.Contexts
         DbSet<Category>  Categories { get; set; }
 
 
+        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            ChangeTracker.Entries<BaseEntity>()
+                .ToList()
+                .ForEach
+                (x => {
+                    x.Entity.UpdatedTime = DateTime.UtcNow;
+                    x.Entity.CreatedTime = DateTime.UtcNow;
+                    _ = true;
+                       });
+
+            return await base.SaveChangesAsync(cancellationToken);
+
+        }
 
 
 

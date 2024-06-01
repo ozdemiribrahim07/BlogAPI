@@ -1,5 +1,9 @@
 ﻿
+using BlogAPI.Application.Repositories.ArticleRepo;
+using BlogAPI.Application.Repositories.CategoryRepo;
 using BlogAPI.Persistance.Contexts;
+using BlogAPI.Persistance.Repositories.ArticleRepo;
+using BlogAPI.Persistance.Repositories.CategoryRepo;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -14,9 +18,17 @@ namespace BlogAPI.Persistance
     {
         public static void AddPersistanceServices(this IServiceCollection serviceCollection)
         {
-            serviceCollection.AddDbContext<BlogContext>(opt => opt.UseNpgsql("Server=127.0.0.1;Port=5432;Database=BlogDb;User Id=postgres;Password=1289;"));
+            serviceCollection.AddDbContext<BlogContext>(opt => opt.UseNpgsql(Configuration.ConnectionString));
+
+            serviceCollection.AddScoped<IArticleReadRepository, ArticleReadRepository>();
+            serviceCollection.AddScoped<IArticleWriteRepository, ArticleWriteRepository>();
+
+            serviceCollection.AddScoped<ICategoryReadRepository, CategoryReadRepository>();
+            serviceCollection.AddScoped<ICategoryWriteRepository, CategoryWriteRepository>();
 
         }
+
+      
 
 
     }

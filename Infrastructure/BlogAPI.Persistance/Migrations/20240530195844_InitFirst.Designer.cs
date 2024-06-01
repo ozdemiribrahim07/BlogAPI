@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BlogAPI.Persistance.Migrations
 {
     [DbContext(typeof(BlogContext))]
-    [Migration("20240530173106_InitFirst")]
+    [Migration("20240530195844_InitFirst")]
     partial class InitFirst
     {
         /// <inheritdoc />
@@ -31,7 +31,7 @@ namespace BlogAPI.Persistance.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("CategoryId")
+                    b.Property<Guid?>("CategoryId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("Content")
@@ -74,9 +74,7 @@ namespace BlogAPI.Persistance.Migrations
                 {
                     b.HasOne("BlogAPI.Domain.Entities.Category", "Category")
                         .WithMany("Articles")
-                        .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CategoryId");
 
                     b.Navigation("Category");
                 });
