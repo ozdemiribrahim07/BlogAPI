@@ -12,6 +12,7 @@ namespace BlogAPI.Domain.Entities
     {
         public string FileName { get; set; }
         public string Path { get; set; }
+        public string Storage { get; set; }
         [NotMapped]
         public override DateTime UpdatedTime { get => base.UpdatedTime; set => base.UpdatedTime = value; }
 

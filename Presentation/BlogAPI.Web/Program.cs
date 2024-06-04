@@ -4,6 +4,7 @@ using BlogAPI.Persistance;
 using BlogAPI.Insfrastructure;
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using BlogAPI.Insfrastructure.Services.Storage.Local;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,6 +18,8 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddPersistanceServices();
 builder.Services.AddInfrastructureServices();
+
+builder.Services.AddStorage<LocalStorage>();
 
 builder.Services.AddCors(opt => opt.AddDefaultPolicy(policy => policy.WithOrigins("https://localhost:4200","http://localhost:4200").AllowAnyHeader().AllowAnyMethod()));
 

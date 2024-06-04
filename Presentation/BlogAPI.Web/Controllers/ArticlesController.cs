@@ -1,8 +1,8 @@
-﻿using BlogAPI.Application.Repositories.ArticleImageFileRepo;
+﻿using BlogAPI.Application.Abstraction;
+using BlogAPI.Application.Repositories.ArticleImageFileRepo;
 using BlogAPI.Application.Repositories.ArticleRepo;
 using BlogAPI.Application.Repositories.FileBaseRepo;
 using BlogAPI.Application.RequestParameters;
-using BlogAPI.Application.Services;
 using BlogAPI.Application.VMs.Articles;
 using BlogAPI.Domain.Entities;
 using Microsoft.AspNetCore.Http;
@@ -18,7 +18,8 @@ namespace BlogAPI.Web.Controllers
         private readonly IArticleReadRepository _articleReadRepository;
         private readonly IArticleWriteRepository _articleWriteRepository;
         private readonly IWebHostEnvironment _webHostEnvironment;
-        private readonly IFileService _fileService;
+        readonly IStorageService _storageService;
+        
 
         readonly IFileBaseWriteRepository _fileBaseWriteRepository;
         readonly IFileBaseReadRepository _fileBaseReadRepository;
@@ -26,16 +27,16 @@ namespace BlogAPI.Web.Controllers
         readonly IArticleImageFileWriteRepository _articleImageFileWriteRepository;
 
 
-        public ArticlesController(IArticleReadRepository articleReadRepository, IArticleWriteRepository articleWriteRepository, IWebHostEnvironment webHostEnvironment, IFileService fileService, IFileBaseWriteRepository fileBaseWriteRepository, IFileBaseReadRepository fileBaseReadRepository, IArticleImageFileReadRepository articleImageFileReadRepository, IArticleImageFileWriteRepository articleImageFileWriteRepository)
+        public ArticlesController(IArticleReadRepository articleReadRepository, IArticleWriteRepository articleWriteRepository, IWebHostEnvironment webHostEnvironment, IFileBaseWriteRepository fileBaseWriteRepository, IFileBaseReadRepository fileBaseReadRepository, IArticleImageFileReadRepository articleImageFileReadRepository, IArticleImageFileWriteRepository articleImageFileWriteRepository, IStorageService storageService)
         {
             _articleReadRepository = articleReadRepository;
             _articleWriteRepository = articleWriteRepository;
             _webHostEnvironment = webHostEnvironment;
-            _fileService = fileService;
             _fileBaseWriteRepository = fileBaseWriteRepository;
             _fileBaseReadRepository = fileBaseReadRepository;
             _articleImageFileReadRepository = articleImageFileReadRepository;
             _articleImageFileWriteRepository = articleImageFileWriteRepository;
+            _storageService = storageService;
         }
 
         [HttpGet]
@@ -105,11 +106,14 @@ namespace BlogAPI.Web.Controllers
         [HttpPost("[action]")]
         public async Task<IActionResult> Upload()
         {
-            var datas = await _fileService.UploadAsync("images", Request.Form.Files);
+            var datas = await _storageService.UploadAsync("images", Request.Form.Files);
+
+            //var datas = await _fileService.UploadAsync("images", Request.Form.Files);
             await _articleImageFileWriteRepository.AddRangeAsync(datas.Select(x => new ArticleImageFile()
             {
-                    FileName = x.fileName,
-                    Path = x.path
+                FileName = x.fileName,
+                Path = x.pathOrContainerName,
+                Storage = "Local"
             }).ToList());
             await _articleImageFileWriteRepository.SaveAsync();
             return Ok();
