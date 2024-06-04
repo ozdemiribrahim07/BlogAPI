@@ -17,7 +17,8 @@ namespace BlogAPI.Persistance.Migrations
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     CategoryName = table.Column<string>(type: "text", nullable: false),
-                    CreatedTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                    CreatedTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -32,7 +33,8 @@ namespace BlogAPI.Persistance.Migrations
                     Title = table.Column<string>(type: "text", nullable: false),
                     Content = table.Column<string>(type: "text", nullable: false),
                     CategoryId = table.Column<Guid>(type: "uuid", nullable: true),
-                    CreatedTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                    CreatedTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {

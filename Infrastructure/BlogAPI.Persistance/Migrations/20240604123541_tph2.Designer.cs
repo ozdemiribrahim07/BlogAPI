@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BlogAPI.Persistance.Migrations
 {
     [DbContext(typeof(BlogContext))]
-    [Migration("20240531144735_SecondInitAdded")]
-    partial class SecondInitAdded
+    [Migration("20240604123541_tph2")]
+    partial class tph2
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -55,6 +55,37 @@ namespace BlogAPI.Persistance.Migrations
                     b.ToTable("Articles");
                 });
 
+            modelBuilder.Entity("BlogAPI.Domain.Entities.BaseFile", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Discriminator")
+                        .IsRequired()
+                        .HasMaxLength(21)
+                        .HasColumnType("character varying(21)");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Path")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("BaseFiles");
+
+                    b.HasDiscriminator<string>("Discriminator").HasValue("BaseFile");
+
+                    b.UseTphMappingStrategy();
+                });
+
             modelBuilder.Entity("BlogAPI.Domain.Entities.Category", b =>
                 {
                     b.Property<Guid>("Id")
@@ -74,6 +105,13 @@ namespace BlogAPI.Persistance.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Categories");
+                });
+
+            modelBuilder.Entity("BlogAPI.Domain.Entities.ArticleImageFile", b =>
+                {
+                    b.HasBaseType("BlogAPI.Domain.Entities.BaseFile");
+
+                    b.HasDiscriminator().HasValue("ArticleImageFile");
                 });
 
             modelBuilder.Entity("BlogAPI.Domain.Entities.Article", b =>

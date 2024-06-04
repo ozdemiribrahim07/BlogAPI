@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BlogAPI.Persistance.Migrations
 {
     [DbContext(typeof(BlogContext))]
-    [Migration("20240530195844_InitFirst")]
+    [Migration("20240602115924_InitFirst")]
     partial class InitFirst
     {
         /// <inheritdoc />
@@ -45,6 +45,9 @@ namespace BlogAPI.Persistance.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<DateTime>("UpdatedTime")
+                        .HasColumnType("timestamp with time zone");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CategoryId");
@@ -63,6 +66,9 @@ namespace BlogAPI.Persistance.Migrations
                         .HasColumnType("text");
 
                     b.Property<DateTime>("CreatedTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("UpdatedTime")
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");

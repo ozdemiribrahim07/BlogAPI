@@ -19,6 +19,8 @@ namespace BlogAPI.Persistance.Contexts
 
         DbSet<Article> Articles { get; set; }
         DbSet<Category>  Categories { get; set; }
+        DbSet<BaseFile>  BaseFiles { get; set; }
+        DbSet<ArticleImageFile> ArticleImageFiles { get; set; }
 
 
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
@@ -29,8 +31,8 @@ namespace BlogAPI.Persistance.Contexts
                 (x => {
                     x.Entity.UpdatedTime = DateTime.UtcNow;
                     x.Entity.CreatedTime = DateTime.UtcNow;
-                    _ = true;
-                       });
+                    _ = DateTime.UtcNow;
+                });
 
             return await base.SaveChangesAsync(cancellationToken);
 

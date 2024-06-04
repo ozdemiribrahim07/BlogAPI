@@ -1,8 +1,13 @@
-﻿using BlogAPI.Application.Repositories.ArticleRepo;
+﻿using BlogAPI.Application.Repositories.ArticleImageFileRepo;
+using BlogAPI.Application.Repositories.ArticleRepo;
+using BlogAPI.Application.Repositories.FileBaseRepo;
+using BlogAPI.Application.RequestParameters;
+using BlogAPI.Application.Services;
 using BlogAPI.Application.VMs.Articles;
 using BlogAPI.Domain.Entities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
 
 namespace BlogAPI.Web.Controllers
 {
@@ -12,17 +17,45 @@ namespace BlogAPI.Web.Controllers
     {
         private readonly IArticleReadRepository _articleReadRepository;
         private readonly IArticleWriteRepository _articleWriteRepository;
+        private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly IFileService _fileService;
 
-        public ArticlesController(IArticleReadRepository articleReadRepository, IArticleWriteRepository articleWriteRepository)
+        readonly IFileBaseWriteRepository _fileBaseWriteRepository;
+        readonly IFileBaseReadRepository _fileBaseReadRepository;
+        readonly IArticleImageFileReadRepository _articleImageFileReadRepository;
+        readonly IArticleImageFileWriteRepository _articleImageFileWriteRepository;
+
+
+        public ArticlesController(IArticleReadRepository articleReadRepository, IArticleWriteRepository articleWriteRepository, IWebHostEnvironment webHostEnvironment, IFileService fileService, IFileBaseWriteRepository fileBaseWriteRepository, IFileBaseReadRepository fileBaseReadRepository, IArticleImageFileReadRepository articleImageFileReadRepository, IArticleImageFileWriteRepository articleImageFileWriteRepository)
         {
             _articleReadRepository = articleReadRepository;
             _articleWriteRepository = articleWriteRepository;
+            _webHostEnvironment = webHostEnvironment;
+            _fileService = fileService;
+            _fileBaseWriteRepository = fileBaseWriteRepository;
+            _fileBaseReadRepository = fileBaseReadRepository;
+            _articleImageFileReadRepository = articleImageFileReadRepository;
+            _articleImageFileWriteRepository = articleImageFileWriteRepository;
         }
 
         [HttpGet]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> Get([FromQuery]Pagination pagination)
         {
-            return Ok(_articleReadRepository.GetAll());
+            var total  = _articleReadRepository.GetAll().Count();
+            var articles = _articleReadRepository.GetAll().Skip(pagination.Page * pagination.Size).Take(pagination.Size).Select(x => new
+            {
+                x.Id,
+                x.Title,
+                x.Content,
+                x.CreatedTime,
+                x.UpdatedTime
+            }).ToList();
+
+            return Ok(new
+            {
+                articles,
+                total
+            });
         }
 
 
@@ -51,7 +84,7 @@ namespace BlogAPI.Web.Controllers
                 Content = articleAddVM.Content
             });
             await _articleWriteRepository.SaveAsync();
-            return Ok();
+            return StatusCode((int) HttpStatusCode.Created);
         }
 
 
@@ -65,6 +98,20 @@ namespace BlogAPI.Web.Controllers
             article.Content = articleUpdateVM.Content;
 
             await _articleWriteRepository.SaveAsync();
+            return Ok();
+        }
+
+
+        [HttpPost("[action]")]
+        public async Task<IActionResult> Upload()
+        {
+            var datas = await _fileService.UploadAsync("images", Request.Form.Files);
+            await _articleImageFileWriteRepository.AddRangeAsync(datas.Select(x => new ArticleImageFile()
+            {
+                    FileName = x.fileName,
+                    Path = x.path
+            }).ToList());
+            await _articleImageFileWriteRepository.SaveAsync();
             return Ok();
         }
 
