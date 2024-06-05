@@ -5,6 +5,7 @@ using BlogAPI.Insfrastructure;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using BlogAPI.Insfrastructure.Services.Storage.Local;
+using BlogAPI.Application;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +19,7 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddPersistanceServices();
 builder.Services.AddInfrastructureServices();
+builder.Services.AddApplicationServices();
 
 builder.Services.AddStorage<LocalStorage>();
 

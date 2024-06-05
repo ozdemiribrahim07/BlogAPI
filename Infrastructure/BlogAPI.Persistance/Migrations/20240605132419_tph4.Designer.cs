@@ -3,6 +3,7 @@ using System;
 using BlogAPI.Persistance.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BlogAPI.Persistance.Migrations
 {
     [DbContext(typeof(BlogContext))]
-    partial class BlogContextModelSnapshot : ModelSnapshot
+    [Migration("20240605132419_tph4")]
+    partial class tph4
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,21 +24,6 @@ namespace BlogAPI.Persistance.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
-
-            modelBuilder.Entity("ArticleArticleImageFile", b =>
-                {
-                    b.Property<Guid>("ArticleImageFilesId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("ArticlesId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("ArticleImageFilesId", "ArticlesId");
-
-                    b.HasIndex("ArticlesId");
-
-                    b.ToTable("ArticleArticleImageFile");
-                });
 
             modelBuilder.Entity("BlogAPI.Domain.Entities.Article", b =>
                 {
@@ -127,22 +115,12 @@ namespace BlogAPI.Persistance.Migrations
                 {
                     b.HasBaseType("BlogAPI.Domain.Entities.BaseFile");
 
+                    b.Property<Guid>("ArticleId")
+                        .HasColumnType("uuid");
+
+                    b.HasIndex("ArticleId");
+
                     b.HasDiscriminator().HasValue("ArticleImageFile");
-                });
-
-            modelBuilder.Entity("ArticleArticleImageFile", b =>
-                {
-                    b.HasOne("BlogAPI.Domain.Entities.ArticleImageFile", null)
-                        .WithMany()
-                        .HasForeignKey("ArticleImageFilesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("BlogAPI.Domain.Entities.Article", null)
-                        .WithMany()
-                        .HasForeignKey("ArticlesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("BlogAPI.Domain.Entities.Article", b =>
@@ -152,6 +130,22 @@ namespace BlogAPI.Persistance.Migrations
                         .HasForeignKey("CategoryId");
 
                     b.Navigation("Category");
+                });
+
+            modelBuilder.Entity("BlogAPI.Domain.Entities.ArticleImageFile", b =>
+                {
+                    b.HasOne("BlogAPI.Domain.Entities.Article", "Article")
+                        .WithMany("ArticleImageFiles")
+                        .HasForeignKey("ArticleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Article");
+                });
+
+            modelBuilder.Entity("BlogAPI.Domain.Entities.Article", b =>
+                {
+                    b.Navigation("ArticleImageFiles");
                 });
 
             modelBuilder.Entity("BlogAPI.Domain.Entities.Category", b =>

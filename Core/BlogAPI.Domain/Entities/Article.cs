@@ -13,6 +13,7 @@ namespace BlogAPI.Domain.Entities
         public string Content { get; set; }
         public Guid? CategoryId { get; set; }
         public Category Category { get; set; }
-        
+        public ICollection<ArticleImageFile> ArticleImageFiles { get; set; }
+
     }
 }

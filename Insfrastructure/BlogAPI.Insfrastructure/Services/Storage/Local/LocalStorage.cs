@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace BlogAPI.Insfrastructure.Services.Storage.Local
 {
-    public class LocalStorage : ILocalStorage
+    public class LocalStorage : Storage, ILocalStorage
     {
         readonly IWebHostEnvironment _webHostEnvironment;
 
@@ -50,27 +50,33 @@ namespace BlogAPI.Insfrastructure.Services.Storage.Local
         }
 
 
-
-        public async Task<List<(string fileName, string pathOrContainerName)>> UploadAsync(string pathOrContainerName, IFormFileCollection files)
+        public async Task<List<(string fileName, string pathOrContainerName)>> UploadAsync(string pathOrContainerName, IFormFileCollection files, IWebHostEnvironment webHostEnvironment)
         {
-            string uploadPath = Path.Combine(_webHostEnvironment.WebRootPath, pathOrContainerName);
+            string uploadPath = Path.Combine(webHostEnvironment.WebRootPath, pathOrContainerName);
 
             if (!Directory.Exists(uploadPath))
             {
                 Directory.CreateDirectory(uploadPath);
             }
 
-            List<(string fileName, string path)> datas = new();
-
+            List<(string fileName, string path)> datas = new List<(string fileName, string path)>();
 
             foreach (IFormFile file in files)
             {
-                await CopyFileAsync(Path.Combine(uploadPath, file.FileName), file);
-                datas.Add((file.FileName, $"{pathOrContainerName}/{file.FileName}"));
-            }
-           
-            return datas;
+                string fileNewName = await FileRenameAsync(file.FileName, uploadPath);
 
+                bool copied = await CopyFileAsync(Path.Combine(uploadPath, fileNewName), file);
+                if (copied)
+                {
+                    datas.Add((fileNewName, $"{pathOrContainerName}/{fileNewName}"));
+                }
+                else
+                {
+                   
+                }
+            }
+
+            return datas;
         }
 
 

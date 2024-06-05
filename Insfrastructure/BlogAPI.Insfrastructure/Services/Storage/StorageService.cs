@@ -1,5 +1,6 @@
 ﻿using BlogAPI.Application.Abstraction;
 using BlogAPI.Application.Abstraction.Storage;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
@@ -17,8 +18,8 @@ namespace BlogAPI.Insfrastructure.Services.Storage
         {
             _storage = storage;
         }
-        public Task<List<(string fileName, string pathOrContainerName)>> UploadAsync(string pathOrContainerName, IFormFileCollection files)
-           => _storage.UploadAsync(pathOrContainerName, files);
+        public Task<List<(string fileName, string pathOrContainerName)>> UploadAsync(string pathOrContainerName, IFormFileCollection files, IWebHostEnvironment? webHostEnvironment)
+           => _storage.UploadAsync(pathOrContainerName, files, webHostEnvironment);
 
 
         public async Task DeleteAsync(string fileName, string pathOrContainerName)

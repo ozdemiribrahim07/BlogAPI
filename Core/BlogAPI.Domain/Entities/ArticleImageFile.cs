@@ -8,5 +8,6 @@ namespace BlogAPI.Domain.Entities
 {
     public class ArticleImageFile : BaseFile
     {
+        public ICollection<Article> Articles { get; set; }
     }
 }

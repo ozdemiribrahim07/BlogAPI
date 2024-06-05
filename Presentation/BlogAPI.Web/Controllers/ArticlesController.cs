@@ -1,12 +1,16 @@
 ﻿using BlogAPI.Application.Abstraction;
+using BlogAPI.Application.Features.Articles.Commands.AddArticle;
+using BlogAPI.Application.Features.Articles.Queries.GetAllArticles;
 using BlogAPI.Application.Repositories.ArticleImageFileRepo;
 using BlogAPI.Application.Repositories.ArticleRepo;
 using BlogAPI.Application.Repositories.FileBaseRepo;
 using BlogAPI.Application.RequestParameters;
 using BlogAPI.Application.VMs.Articles;
 using BlogAPI.Domain.Entities;
+using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Net;
 
 namespace BlogAPI.Web.Controllers
@@ -19,6 +23,10 @@ namespace BlogAPI.Web.Controllers
         private readonly IArticleWriteRepository _articleWriteRepository;
         private readonly IWebHostEnvironment _webHostEnvironment;
         readonly IStorageService _storageService;
+        readonly IConfiguration _configuration;
+
+
+        readonly IMediator _mediator;
         
 
         readonly IFileBaseWriteRepository _fileBaseWriteRepository;
@@ -27,7 +35,7 @@ namespace BlogAPI.Web.Controllers
         readonly IArticleImageFileWriteRepository _articleImageFileWriteRepository;
 
 
-        public ArticlesController(IArticleReadRepository articleReadRepository, IArticleWriteRepository articleWriteRepository, IWebHostEnvironment webHostEnvironment, IFileBaseWriteRepository fileBaseWriteRepository, IFileBaseReadRepository fileBaseReadRepository, IArticleImageFileReadRepository articleImageFileReadRepository, IArticleImageFileWriteRepository articleImageFileWriteRepository, IStorageService storageService)
+        public ArticlesController(IArticleReadRepository articleReadRepository, IArticleWriteRepository articleWriteRepository, IWebHostEnvironment webHostEnvironment, IFileBaseWriteRepository fileBaseWriteRepository, IFileBaseReadRepository fileBaseReadRepository, IArticleImageFileReadRepository articleImageFileReadRepository, IArticleImageFileWriteRepository articleImageFileWriteRepository, IStorageService storageService, IConfiguration configuration, IMediator mediator)
         {
             _articleReadRepository = articleReadRepository;
             _articleWriteRepository = articleWriteRepository;
@@ -37,26 +45,15 @@ namespace BlogAPI.Web.Controllers
             _articleImageFileReadRepository = articleImageFileReadRepository;
             _articleImageFileWriteRepository = articleImageFileWriteRepository;
             _storageService = storageService;
+            _configuration = configuration;
+            _mediator = mediator;
         }
 
         [HttpGet]
-        public async Task<IActionResult> Get([FromQuery]Pagination pagination)
+        public async Task<IActionResult> Get([FromQuery] GetAllArticlesQueryRequest getAllArticlesQueryRequest)
         {
-            var total  = _articleReadRepository.GetAll().Count();
-            var articles = _articleReadRepository.GetAll().Skip(pagination.Page * pagination.Size).Take(pagination.Size).Select(x => new
-            {
-                x.Id,
-                x.Title,
-                x.Content,
-                x.CreatedTime,
-                x.UpdatedTime
-            }).ToList();
-
-            return Ok(new
-            {
-                articles,
-                total
-            });
+           GetAllArticlesQueryResponse getAllArticlesQueryResponse = await _mediator.Send(getAllArticlesQueryRequest);
+            return Ok(getAllArticlesQueryResponse);
         }
 
 
@@ -77,15 +74,10 @@ namespace BlogAPI.Web.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> Add(ArticleAddVM articleAddVM)
+        public async Task<IActionResult> Add(AddArticleCommandRequest addArticleCommandRequest)
         {
-            await _articleWriteRepository.AddAsync(new()
-            {
-                Title = articleAddVM.Title,
-                Content = articleAddVM.Content
-            });
-            await _articleWriteRepository.SaveAsync();
-            return StatusCode((int) HttpStatusCode.Created);
+           AddArticleCommandResponse response = await _mediator.Send(addArticleCommandRequest);
+           return Ok(response);
         }
 
 
@@ -104,20 +96,51 @@ namespace BlogAPI.Web.Controllers
 
 
         [HttpPost("[action]")]
-        public async Task<IActionResult> Upload()
+        public async Task<IActionResult> Upload(string id)
         {
-            var datas = await _storageService.UploadAsync("images", Request.Form.Files);
+            List<(string fileName, string pathOrContainerName)> result = await _storageService.UploadAsync("images", Request.Form.Files, _webHostEnvironment);
 
-            //var datas = await _fileService.UploadAsync("images", Request.Form.Files);
-            await _articleImageFileWriteRepository.AddRangeAsync(datas.Select(x => new ArticleImageFile()
+            Article article = await _articleReadRepository.GetByIdAsync(id);
+
+            await _articleImageFileWriteRepository.AddRangeAsync(result.Select(x => new ArticleImageFile()
             {
                 FileName = x.fileName,
                 Path = x.pathOrContainerName,
-                Storage = "Local"
+                Storage = "Local",
+                Articles = new List<Article>() { article }
             }).ToList());
+
             await _articleImageFileWriteRepository.SaveAsync();
             return Ok();
         }
+
+
+        [HttpGet("[action]/{id}")]
+        public async Task<IActionResult> GetImages(string id)
+        {
+           Article? article = await _articleReadRepository.Table.Include(x => x.ArticleImageFiles).FirstOrDefaultAsync(x => x.Id == Guid.Parse(id));
+
+            return Ok(article.ArticleImageFiles.Select(x => new {
+               Path = $"{ _configuration["LocalStorageUrl"]}/{x.Path}/{x.FileName}",
+               x.FileName,
+               x.Id
+            }));
+        }
+
+
+        [HttpDelete("[action]/{id}")]
+        public async Task<IActionResult> RemoveImage(string id, string imageId)
+        {
+            Article? article = await _articleReadRepository.Table.Include(x => x.ArticleImageFiles).FirstOrDefaultAsync(x => x.Id == Guid.Parse(id));
+
+            ArticleImageFile articleImageFile = article.ArticleImageFiles.FirstOrDefault(x => x.Id == Guid.Parse(imageId));
+
+            article.ArticleImageFiles.Remove(articleImageFile);
+            await _articleImageFileWriteRepository.SaveAsync();
+            return Ok();
+        }
+
+
 
     }
 }
