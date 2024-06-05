@@ -1,6 +1,12 @@
 ﻿using BlogAPI.Application.Abstraction;
 using BlogAPI.Application.Features.Articles.Commands.AddArticle;
+using BlogAPI.Application.Features.Articles.Commands.ArticleImageFile.RemoveArticleImage;
+using BlogAPI.Application.Features.Articles.Commands.ArticleImageFile.UploadArticleImage;
+using BlogAPI.Application.Features.Articles.Commands.RemoveArticle;
+using BlogAPI.Application.Features.Articles.Commands.UpdateArticle;
+using BlogAPI.Application.Features.Articles.Queries.ArticleImageFile.GetArticleImages;
 using BlogAPI.Application.Features.Articles.Queries.GetAllArticles;
+using BlogAPI.Application.Features.Articles.Queries.GetByIdArticles;
 using BlogAPI.Application.Repositories.ArticleImageFileRepo;
 using BlogAPI.Application.Repositories.ArticleRepo;
 using BlogAPI.Application.Repositories.FileBaseRepo;
@@ -12,6 +18,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace BlogAPI.Web.Controllers
 {
@@ -57,19 +64,20 @@ namespace BlogAPI.Web.Controllers
         }
 
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> Get(string id)
+        [HttpGet("{Id}")]
+        public async Task<IActionResult> Get([FromRoute]GetByIdArticleQueryRequest getByIdArticleQueryRequest)
         {
-            return Ok(await _articleReadRepository.GetByIdAsync(id));
+            GetByIdArticleQueryResponse getByIdArticleQueryResponse = await _mediator.Send(getByIdArticleQueryRequest);
+            return Ok(getByIdArticleQueryResponse);
         }
 
+     
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Remove(string id)
+        [HttpDelete("{Id}")]
+        public async Task<IActionResult> Remove([FromRoute] RemoveArticleCommandRequest removeArticleCommandRequest)
         {
-            await _articleWriteRepository.RemoveAsync(id);
-            await _articleWriteRepository.SaveAsync();
-            return Ok();
+           RemoveArticleCommandResponse removeArticleCommandResponse = await _mediator.Send(removeArticleCommandRequest);
+            return Ok(removeArticleCommandResponse);
         }
 
 
@@ -83,61 +91,38 @@ namespace BlogAPI.Web.Controllers
 
 
         [HttpPut]
-        public async Task<IActionResult> Update(ArticleUpdateVM articleUpdateVM)
+        public async Task<IActionResult> Update([FromBody]UpdateArticleCommandRequest updateArticleCommandRequest)
         {
-            Article article = await _articleReadRepository.GetByIdAsync(articleUpdateVM.Id);
-
-            article.Title = articleUpdateVM.Title;
-            article.Content = articleUpdateVM.Content;
-
-            await _articleWriteRepository.SaveAsync();
-            return Ok();
+            UpdateArticleCommandResponse response = await _mediator.Send(updateArticleCommandRequest);
+            return Ok(response);
         }
+         
 
 
         [HttpPost("[action]")]
-        public async Task<IActionResult> Upload(string id)
+        public async Task<IActionResult> Upload([FromQuery] UploadArticleImageCommandRequest uploadArticleImageCommandRequest)
         {
-            List<(string fileName, string pathOrContainerName)> result = await _storageService.UploadAsync("images", Request.Form.Files, _webHostEnvironment);
-
-            Article article = await _articleReadRepository.GetByIdAsync(id);
-
-            await _articleImageFileWriteRepository.AddRangeAsync(result.Select(x => new ArticleImageFile()
-            {
-                FileName = x.fileName,
-                Path = x.pathOrContainerName,
-                Storage = "Local",
-                Articles = new List<Article>() { article }
-            }).ToList());
-
-            await _articleImageFileWriteRepository.SaveAsync();
-            return Ok();
+            uploadArticleImageCommandRequest.Files = Request.Form.Files;
+            UploadArticleImageCommandResponse response = await _mediator.Send(uploadArticleImageCommandRequest);
+            return Ok(response);
         }
 
 
-        [HttpGet("[action]/{id}")]
-        public async Task<IActionResult> GetImages(string id)
+        [HttpGet("[action]/{Id}")]
+        public async Task<IActionResult> GetImages([FromRoute]GetArticleImagesQueryRequest getArticleImagesQueryRequest)
         {
-           Article? article = await _articleReadRepository.Table.Include(x => x.ArticleImageFiles).FirstOrDefaultAsync(x => x.Id == Guid.Parse(id));
-
-            return Ok(article.ArticleImageFiles.Select(x => new {
-               Path = $"{ _configuration["LocalStorageUrl"]}/{x.Path}/{x.FileName}",
-               x.FileName,
-               x.Id
-            }));
+           List<GetArticleImagesQueryResponse> getAllArticlesQueryResponse = await _mediator.Send(getArticleImagesQueryRequest);
+            return Ok(getAllArticlesQueryResponse);
         }
 
 
-        [HttpDelete("[action]/{id}")]
-        public async Task<IActionResult> RemoveImage(string id, string imageId)
+        [HttpDelete("[action]/{Id}")]
+        public async Task<IActionResult> RemoveImage([FromRoute]RemoveArticleImageCommandRequest removeArticleImageCommandRequest, [FromQuery] string imageId)
         {
-            Article? article = await _articleReadRepository.Table.Include(x => x.ArticleImageFiles).FirstOrDefaultAsync(x => x.Id == Guid.Parse(id));
+            removeArticleImageCommandRequest.ImageId = imageId;
 
-            ArticleImageFile articleImageFile = article.ArticleImageFiles.FirstOrDefault(x => x.Id == Guid.Parse(imageId));
-
-            article.ArticleImageFiles.Remove(articleImageFile);
-            await _articleImageFileWriteRepository.SaveAsync();
-            return Ok();
+            RemoveArticleImageCommandResponse removeArticleImageCommandResponse = await _mediator.Send(removeArticleImageCommandRequest);
+            return Ok(removeArticleImageCommandResponse);
         }
 
 
