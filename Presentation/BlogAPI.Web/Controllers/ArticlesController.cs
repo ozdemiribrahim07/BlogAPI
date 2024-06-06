@@ -14,6 +14,7 @@ using BlogAPI.Application.RequestParameters;
 using BlogAPI.Application.VMs.Articles;
 using BlogAPI.Domain.Entities;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -24,6 +25,7 @@ namespace BlogAPI.Web.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(AuthenticationSchemes = "Admin")]
     public class ArticlesController : ControllerBase
     {
         private readonly IArticleReadRepository _articleReadRepository;

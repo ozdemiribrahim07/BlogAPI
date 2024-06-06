@@ -1,4 +1,5 @@
 ﻿using BlogAPI.Application.Features.Users.Commands.CreateUser;
+using BlogAPI.Application.Features.Users.Commands.LoginUser;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -22,11 +23,15 @@ namespace BlogAPI.Web.Controllers
         {
             CreateUserCommandResponse createUserCommandResponse = await _mediator.Send(createUserCommandRequest);
             return Ok(createUserCommandResponse);
-
         }
 
 
-
+        [HttpPost("[action]")]
+        public async Task<IActionResult> Login(LoginUserCommandRequest loginUserCommandRequest)
+        {
+            LoginUserCommandResponse loginUserCommandResponse = await _mediator.Send(loginUserCommandRequest);
+            return Ok(loginUserCommandResponse);
+        }
 
 
 

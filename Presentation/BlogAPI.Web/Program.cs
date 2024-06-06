@@ -6,6 +6,9 @@ using FluentValidation;
 using FluentValidation.AspNetCore;
 using BlogAPI.Insfrastructure.Services.Storage.Local;
 using BlogAPI.Application;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +19,22 @@ builder.Services.AddControllers(opt => opt.Filters.Add<ValidationFilter>())
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer("Admin", opt =>
+    {
+        opt.TokenValidationParameters = new()
+        {
+            ValidateIssuer = true, //daðýtan api adresi
+            ValidateAudience = true, //hangi origin kullanacak 
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+
+            ValidIssuer = builder.Configuration["Token:Issuer"],
+            ValidAudience = builder.Configuration["Token:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Token:SecurityKey"]))
+        };
+    });
 
 builder.Services.AddPersistanceServices();
 builder.Services.AddInfrastructureServices();
@@ -39,6 +58,7 @@ app.UseStaticFiles();
 app.UseCors();
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
