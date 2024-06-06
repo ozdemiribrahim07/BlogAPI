@@ -1,4 +1,5 @@
 ﻿
+using BlogAPI.Application.Abstraction.Services;
 using BlogAPI.Application.Repositories.ArticleImageFileRepo;
 using BlogAPI.Application.Repositories.ArticleRepo;
 using BlogAPI.Application.Repositories.CategoryRepo;
@@ -9,6 +10,7 @@ using BlogAPI.Persistance.Repositories.ArticleImageFileRepo;
 using BlogAPI.Persistance.Repositories.ArticleRepo;
 using BlogAPI.Persistance.Repositories.CategoryRepo;
 using BlogAPI.Persistance.Repositories.FileBaseRepo;
+using BlogAPI.Persistance.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -48,6 +50,9 @@ namespace BlogAPI.Persistance
 
             serviceCollection.AddScoped<IArticleImageFileReadRepository, ArticleImageFileReadRepository>();
             serviceCollection.AddScoped<IArticleImageFileWriteRepository, ArticleImageFileWriteRepo>();
+
+            serviceCollection.AddScoped<IUserService, UserService>();
+            serviceCollection.AddScoped<IAuthService, AuthService>();
 
         }
 

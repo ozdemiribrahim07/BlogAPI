@@ -1,4 +1,5 @@
-﻿using BlogAPI.Application.Abstraction.Token;
+﻿using BlogAPI.Application.Abstraction.Services;
+using BlogAPI.Application.Abstraction.Token;
 using BlogAPI.Application.Dtos;
 using BlogAPI.Domain.Entities;
 using MediatR;
@@ -13,52 +14,21 @@ namespace BlogAPI.Application.Features.Users.Commands.LoginUser
 {
     public class LoginUserCommandHandler : IRequestHandler<LoginUserCommandRequest, LoginUserCommandResponse>
     {
-        readonly UserManager<AppUser> _userManager;
-        readonly SignInManager<AppUser> _signInManager;
-        readonly ITokenHandler _tokenHandler;
 
-        public LoginUserCommandHandler(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, ITokenHandler tokenHandler)
+        readonly IAuthService _authService;
+
+        public LoginUserCommandHandler(IAuthService authService)
         {
-            _userManager = userManager;
-            _signInManager = signInManager;
-            _tokenHandler = tokenHandler;
+            _authService = authService;
         }
-
+            
         public async Task<LoginUserCommandResponse> Handle(LoginUserCommandRequest request, CancellationToken cancellationToken)
         {
-            AppUser appUser = await _userManager.FindByNameAsync(request.EmailOrUsername);
-
-            if (appUser == null)
+          var token = await _authService.LoginAsync(request.EmailOrUsername, request.Password,15);
+            return new LoginUserCommandResponse()
             {
-                appUser = await _userManager.FindByEmailAsync(request.EmailOrUsername);
-            }
-
-            if (appUser == null)
-            {
-                throw new Exception("Kullanıcı veya şifre hatalı !");
-            }
-          
-
-           SignInResult result = await _signInManager.CheckPasswordSignInAsync(appUser, request.Password, false);
-
-            if (result.Succeeded) {
-
-               Token token = _tokenHandler.CreateToken(5);
-
-                return new()
-                {
-                    Token = token
-                };
-            }
-            else
-            {
-                return new()
-                {
-                    Message = "Kullanıcı veya şifre hatalı !"
-                };
-            }
-
-
+                Token = token
+            };
         }
     }
 }

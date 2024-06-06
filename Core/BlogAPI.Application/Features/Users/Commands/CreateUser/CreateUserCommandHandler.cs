@@ -1,4 +1,6 @@
-﻿using BlogAPI.Application.Exceptions;
+﻿using BlogAPI.Application.Abstraction.Services;
+using BlogAPI.Application.Dtos.UserDtos;
+using BlogAPI.Application.Exceptions;
 using BlogAPI.Domain.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
@@ -12,49 +14,31 @@ namespace BlogAPI.Application.Features.Users.Commands.CreateUser
 {
     public class CreateUserCommandHandler : IRequestHandler<CreateUserCommandRequest, CreateUserCommandResponse>
     {
-        readonly UserManager<AppUser> _userManager;
+        readonly IUserService _userService;
 
-        public CreateUserCommandHandler(UserManager<AppUser> userManager)
+        public CreateUserCommandHandler(IUserService userService)
         {
-            _userManager = userManager;
+            _userService = userService;
         }
 
         public async Task<CreateUserCommandResponse> Handle(CreateUserCommandRequest request, CancellationToken cancellationToken)
         {
-            
-           IdentityResult result =  await _userManager.CreateAsync(new()
-             {
-                 Id = Guid.NewGuid().ToString(),
-                 Email = request.Email,
-                 UserName = request.KullaniciAdi,
-                 NameSurname = request.AdSoyad,
-             },request.Parola);
 
-           
-            CreateUserCommandResponse response = new() { Succeeded = result.Succeeded };
-
-            if (result.Succeeded)
+          CreateUserResponse createUserResponse =  await _userService.CreateAsync(new()
             {
-                response.Message += "Kullanıcı oluşturuldu";
-            }
-            else
+                AdSoyad = request.AdSoyad,
+                KullaniciAdi = request.KullaniciAdi,
+                Email = request.Email,
+                Parola = request.Parola,
+                ParolaTekrar = request.ParolaTekrar
+            });
+
+
+            return new()
             {
-                foreach (var error in result.Errors)
-                {
-                    response.Message += $"{error.Code}-{error.Description}<br>";
-                }
-            }
-
-            return response;
-           
-                
-
-
-                
-
-
-
-
+                Message = createUserResponse.Message,
+                Succeeded = createUserResponse.Succeeded
+            };
         }
     }
 }
