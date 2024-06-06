@@ -1,5 +1,6 @@
 ﻿using BlogAPI.Domain.Entities;
 using BlogAPI.Domain.Entities.Common;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System;
@@ -10,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace BlogAPI.Persistance.Contexts
 {
-    public class BlogContext : DbContext
+    public class BlogContext : IdentityDbContext<AppUser,AppRole,string>
     {
        
         public BlogContext(DbContextOptions options) : base(options)
@@ -21,7 +22,7 @@ namespace BlogAPI.Persistance.Contexts
         DbSet<Category>  Categories { get; set; }
         DbSet<BaseFile>  BaseFiles { get; set; }
         DbSet<ArticleImageFile> ArticleImageFiles { get; set; }
-
+        
 
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {

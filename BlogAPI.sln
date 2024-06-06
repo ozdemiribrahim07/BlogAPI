@@ -5,19 +5,19 @@ VisualStudioVersion = 17.10.34928.147
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{5D61FBF8-CF2F-4A27-BFA2-47D02974FBFF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlogAPI.Domain", "Core\BlogAPI.Domain\BlogAPI.Domain.csproj", "{334CD53E-2510-49D8-ADC0-6FCA4A144DB9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlogAPI.Domain", "Core\BlogAPI.Domain\BlogAPI.Domain.csproj", "{334CD53E-2510-49D8-ADC0-6FCA4A144DB9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlogAPI.Application", "Core\BlogAPI.Application\BlogAPI.Application.csproj", "{FF716696-BA1C-42A6-83E3-3297956FDE50}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlogAPI.Application", "Core\BlogAPI.Application\BlogAPI.Application.csproj", "{FF716696-BA1C-42A6-83E3-3297956FDE50}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructure", "Infrastructure", "{A5E81DB9-50F6-4BD5-9A11-280E3845B4C7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlogAPI.Insfrastructure", "Insfrastructure\BlogAPI.Insfrastructure\BlogAPI.Insfrastructure.csproj", "{7D2F43A9-7241-4D13-A250-6625372EE7B6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlogAPI.Insfrastructure", "Insfrastructure\BlogAPI.Insfrastructure\BlogAPI.Insfrastructure.csproj", "{7D2F43A9-7241-4D13-A250-6625372EE7B6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlogAPI.Persistance", "Infrastructure\BlogAPI.Persistance\BlogAPI.Persistance.csproj", "{5BD7EF89-831E-49E7-B4DE-F68785F27A36}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlogAPI.Persistance", "Infrastructure\BlogAPI.Persistance\BlogAPI.Persistance.csproj", "{5BD7EF89-831E-49E7-B4DE-F68785F27A36}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Presentation", "Presentation", "{2130D711-9757-4C35-8A36-D0A27A06983E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlogAPI.Web", "Presentation\BlogAPI.Web\BlogAPI.Web.csproj", "{A4D5066F-2843-4D9D-B7BA-A81EE6C4B402}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlogAPI.Web", "Presentation\BlogAPI.Web\BlogAPI.Web.csproj", "{A4D5066F-2843-4D9D-B7BA-A81EE6C4B402}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

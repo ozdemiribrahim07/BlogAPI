@@ -3,6 +3,7 @@ using BlogAPI.Application.Repositories.ArticleImageFileRepo;
 using BlogAPI.Application.Repositories.ArticleRepo;
 using BlogAPI.Application.Repositories.CategoryRepo;
 using BlogAPI.Application.Repositories.FileBaseRepo;
+using BlogAPI.Domain.Entities;
 using BlogAPI.Persistance.Contexts;
 using BlogAPI.Persistance.Repositories.ArticleImageFileRepo;
 using BlogAPI.Persistance.Repositories.ArticleRepo;
@@ -23,6 +24,18 @@ namespace BlogAPI.Persistance
         public static void AddPersistanceServices(this IServiceCollection serviceCollection)
         {
             serviceCollection.AddDbContext<BlogContext>(opt => opt.UseNpgsql(Configuration.ConnectionString));
+
+
+            serviceCollection.AddIdentity<AppUser, AppRole>(opt =>
+            {
+                opt.Password.RequireLowercase = false;
+                opt.Password.RequireUppercase = false;
+                opt.Password.RequireNonAlphanumeric = false;
+                opt.Password.RequireDigit = false;
+
+            }).AddEntityFrameworkStores<BlogContext>();
+
+
 
             serviceCollection.AddScoped<IArticleReadRepository, ArticleReadRepository>();
             serviceCollection.AddScoped<IArticleWriteRepository, ArticleWriteRepository>();
