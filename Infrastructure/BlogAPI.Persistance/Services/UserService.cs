@@ -50,5 +50,22 @@ namespace BlogAPI.Persistance.Services
 
 
         }
+
+        public async  Task UpdateRefreshTokenAsync(string refreshToken, string id, DateTime accessTokenDate, int refreshTokenDate)
+        {
+            var user = await _userManager.FindByIdAsync(id);
+
+            if (user == null)
+            {
+                throw new Exception("Kullanıcı bulunamadı");
+            }
+
+            user.RefreshToken = refreshToken;
+            user.RefreshTokenEndDate = accessTokenDate.AddSeconds(refreshTokenDate);
+
+            await _userManager.UpdateAsync(user);
+            
+
+        }
     }
 }

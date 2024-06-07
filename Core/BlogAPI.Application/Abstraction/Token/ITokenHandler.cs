@@ -8,6 +8,7 @@ namespace BlogAPI.Application.Abstraction.Token
 {
     public interface ITokenHandler
     {
-        Dtos.Token CreateToken(int minute);
+        Dtos.Token CreateToken(int seconds);
+        string CreateRefreshToken();
     }
 }

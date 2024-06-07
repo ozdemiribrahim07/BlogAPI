@@ -10,7 +10,7 @@ namespace BlogAPI.Application.Abstraction.Services
     public interface IUserService
     {
         Task<CreateUserResponse> CreateAsync(CreateUser createUser);
-       
+        Task UpdateRefreshTokenAsync(string refreshToken, string id, DateTime accessTokenDate, int refreshTokenDate);
 
 
     }

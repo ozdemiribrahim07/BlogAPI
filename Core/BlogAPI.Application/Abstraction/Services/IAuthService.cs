@@ -10,5 +10,8 @@ namespace BlogAPI.Application.Abstraction.Services
     {
         Task<Dtos.Token> LoginAsync(string emailOrUsername, string password, int accessTokenLifeTime);
 
+        Task<Dtos.Token> RefreshTokenLoginAsync(string refreshToken);
+
+
     }
 }

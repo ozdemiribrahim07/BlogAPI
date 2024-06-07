@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -20,7 +21,18 @@ namespace BlogAPI.Insfrastructure.Services
             _configuration = configuration;
         }
 
-        public Application.Dtos.Token CreateToken(int minute)
+        public string  CreateRefreshToken()
+        {
+            byte[] bytes = new byte[32];
+
+            using (var generator = RandomNumberGenerator.Create())
+            {
+                generator.GetBytes(bytes);
+                return Convert.ToBase64String(bytes);
+            }
+        }
+
+        public Application.Dtos.Token CreateToken(int seconds)
         {
             Application.Dtos.Token token = new();
 
@@ -28,7 +40,7 @@ namespace BlogAPI.Insfrastructure.Services
             
             SigningCredentials signingCredentials = new(securityKey,SecurityAlgorithms.HmacSha256);
 
-            token.Expiration = DateTime.UtcNow.AddMinutes(minute);
+            token.Expiration = DateTime.UtcNow.AddSeconds(20);
 
             JwtSecurityToken jwtSecurityToken = new(
                 audience: _configuration["Token:Audience"],
@@ -40,7 +52,20 @@ namespace BlogAPI.Insfrastructure.Services
 
             JwtSecurityTokenHandler tokenHandler = new();
             token.AccessToken =  tokenHandler.WriteToken(jwtSecurityToken);
+
+            //Refresh Token
+
+            string refreshToken = CreateRefreshToken();
+            token.RefreshToken = refreshToken;
+
             return token;
+
+
+
+
         }
+
+
+
     }
 }

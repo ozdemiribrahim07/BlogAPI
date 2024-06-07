@@ -28,33 +28,13 @@ namespace BlogAPI.Web.Controllers
     [Authorize(AuthenticationSchemes = "Admin")]
     public class ArticlesController : ControllerBase
     {
-        private readonly IArticleReadRepository _articleReadRepository;
-        private readonly IArticleWriteRepository _articleWriteRepository;
-        private readonly IWebHostEnvironment _webHostEnvironment;
-        readonly IStorageService _storageService;
-        readonly IConfiguration _configuration;
-
-
+       
         readonly IMediator _mediator;
-        
-
-        readonly IFileBaseWriteRepository _fileBaseWriteRepository;
-        readonly IFileBaseReadRepository _fileBaseReadRepository;
-        readonly IArticleImageFileReadRepository _articleImageFileReadRepository;
-        readonly IArticleImageFileWriteRepository _articleImageFileWriteRepository;
 
 
-        public ArticlesController(IArticleReadRepository articleReadRepository, IArticleWriteRepository articleWriteRepository, IWebHostEnvironment webHostEnvironment, IFileBaseWriteRepository fileBaseWriteRepository, IFileBaseReadRepository fileBaseReadRepository, IArticleImageFileReadRepository articleImageFileReadRepository, IArticleImageFileWriteRepository articleImageFileWriteRepository, IStorageService storageService, IConfiguration configuration, IMediator mediator)
+        public ArticlesController(IMediator mediator)
         {
-            _articleReadRepository = articleReadRepository;
-            _articleWriteRepository = articleWriteRepository;
-            _webHostEnvironment = webHostEnvironment;
-            _fileBaseWriteRepository = fileBaseWriteRepository;
-            _fileBaseReadRepository = fileBaseReadRepository;
-            _articleImageFileReadRepository = articleImageFileReadRepository;
-            _articleImageFileWriteRepository = articleImageFileWriteRepository;
-            _storageService = storageService;
-            _configuration = configuration;
+           
             _mediator = mediator;
         }
 
