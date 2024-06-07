@@ -40,7 +40,7 @@ namespace BlogAPI.Insfrastructure.Services
             
             SigningCredentials signingCredentials = new(securityKey,SecurityAlgorithms.HmacSha256);
 
-            token.Expiration = DateTime.UtcNow.AddSeconds(20);
+            token.Expiration = DateTime.UtcNow.AddMinutes(20);
 
             JwtSecurityToken jwtSecurityToken = new(
                 audience: _configuration["Token:Audience"],

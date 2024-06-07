@@ -9,23 +9,16 @@ using BlogAPI.Application.Features.Articles.Queries.GetAllArticles;
 using BlogAPI.Application.Features.Articles.Queries.GetByIdArticles;
 using BlogAPI.Application.Repositories.ArticleImageFileRepo;
 using BlogAPI.Application.Repositories.ArticleRepo;
-using BlogAPI.Application.Repositories.FileBaseRepo;
-using BlogAPI.Application.RequestParameters;
-using BlogAPI.Application.VMs.Articles;
-using BlogAPI.Domain.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.Net;
-using static System.Net.Mime.MediaTypeNames;
+
 
 namespace BlogAPI.Web.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(AuthenticationSchemes = "Admin")]
+    
     public class ArticlesController : ControllerBase
     {
        
@@ -56,6 +49,7 @@ namespace BlogAPI.Web.Controllers
      
 
         [HttpDelete("{Id}")]
+        [Authorize(AuthenticationSchemes = "Admin")]
         public async Task<IActionResult> Remove([FromRoute] RemoveArticleCommandRequest removeArticleCommandRequest)
         {
            RemoveArticleCommandResponse removeArticleCommandResponse = await _mediator.Send(removeArticleCommandRequest);
@@ -64,6 +58,7 @@ namespace BlogAPI.Web.Controllers
 
 
         [HttpPost]
+        [Authorize(AuthenticationSchemes = "Admin")]
         public async Task<IActionResult> Add(AddArticleCommandRequest addArticleCommandRequest)
         {
            AddArticleCommandResponse response = await _mediator.Send(addArticleCommandRequest);
@@ -73,6 +68,7 @@ namespace BlogAPI.Web.Controllers
 
 
         [HttpPut]
+        [Authorize(AuthenticationSchemes = "Admin")]
         public async Task<IActionResult> Update([FromBody]UpdateArticleCommandRequest updateArticleCommandRequest)
         {
             UpdateArticleCommandResponse response = await _mediator.Send(updateArticleCommandRequest);
@@ -82,6 +78,7 @@ namespace BlogAPI.Web.Controllers
 
 
         [HttpPost("[action]")]
+        [Authorize(AuthenticationSchemes = "Admin")]
         public async Task<IActionResult> Upload([FromQuery] UploadArticleImageCommandRequest uploadArticleImageCommandRequest)
         {
             uploadArticleImageCommandRequest.Files = Request.Form.Files;
@@ -91,6 +88,7 @@ namespace BlogAPI.Web.Controllers
 
 
         [HttpGet("[action]/{Id}")]
+        [Authorize(AuthenticationSchemes = "Admin")]
         public async Task<IActionResult> GetImages([FromRoute]GetArticleImagesQueryRequest getArticleImagesQueryRequest)
         {
            List<GetArticleImagesQueryResponse> getAllArticlesQueryResponse = await _mediator.Send(getArticleImagesQueryRequest);
@@ -99,6 +97,7 @@ namespace BlogAPI.Web.Controllers
 
 
         [HttpDelete("[action]/{Id}")]
+        [Authorize(AuthenticationSchemes = "Admin")]
         public async Task<IActionResult> RemoveImage([FromRoute]RemoveArticleImageCommandRequest removeArticleImageCommandRequest, [FromQuery] string imageId)
         {
             removeArticleImageCommandRequest.ImageId = imageId;
